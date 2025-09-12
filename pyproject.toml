@@ -1,0 +1,34 @@
+[tool.ruff]
+line-length = 110
+indent-width = 4
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = [
+  "E",       # pycodestyle (error)
+  "F",       # pyflakes
+  "I",       # isort
+  "N",       # pep8-naming
+  "PIE",     # flake8-pie
+  "PLE",     # pylint error
+  "RUF100",  # Unused noqa comments
+  #"PGH004",  # blanket noqa comments (Gstreamer)
+  "C4",      # flake8-comprehensions
+  "SIM201", "SIM202", "SIM222", "SIM223",  # flake8-simplify
+  "ISC001",  # implicitly concatenated string
+  "RET501", "RET502",  # better return None handling
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+#addopts = "-s -v --cov=domain --cov=infrastructure/builders --cov-report=html:coverage_re"
+
+[tool.mypy]
+ignore_missing_imports = true
+follow_untyped_imports = true
+warn_return_any = true
+disallow_untyped_defs = true
+explicit_package_bases = true
