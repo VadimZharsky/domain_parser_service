@@ -37,6 +37,7 @@ class DomainRepository(IDomainRepository):
             async with self._context.session() as session:
                 session.add_all(domains)
                 await session.commit()
+                print(f"inserted in db: {len(domains)}")
                 return DomainMapper.to_dto_list(domains)
         except (OSError, sqlalchemy.exc.InterfaceError, sqlalchemy.exc.IntegrityError):
             return []
@@ -46,6 +47,7 @@ class DomainRepository(IDomainRepository):
             async with self._context.session() as session:
                 res = await session.execute(statement=select(Domain))
                 domains = res.scalars().all()
+                print(f"current size is: {len(domains)}")
                 return DomainMapper.to_dto_list(list(domains))
         except (OSError, sqlalchemy.exc.InterfaceError, sqlalchemy.exc.IntegrityError):
             return []

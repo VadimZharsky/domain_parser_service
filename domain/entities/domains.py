@@ -10,7 +10,7 @@ class DomainSourceDto(BaseModel):
 
 class AddDomainDto(BaseModel):
     name: str = Field(validation_alias="fqdn")
-    price: int = Field(default=0, validation_alias="current_bid_price")
+    price: int = Field(default=0, validation_alias="auction_price")
     bids: int
     domain_created_at: datetime | None = Field(default=None, validation_alias="domain_create_date")
     auction_ended_at: datetime = Field(validation_alias="end_time")

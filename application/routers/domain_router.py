@@ -6,7 +6,7 @@ from fastapi.params import Query
 from application.builders import JsonResponseBuilder
 from application.providers import DependenciesProvider
 from domain.entities import DomainSourceDto, GetDomainDto
-from domain.enums import DomainSourceType
+from domain.enums import DomainSourceType, FilterType
 
 domain_router = APIRouter(prefix="/api/domains", tags=["Domains"])
 
@@ -51,12 +51,14 @@ async def get_all_sources(
 )
 async def fetch_from(
     source: Annotated[DomainSourceType, Query()] = DomainSourceType.AUCTIONS_GO_DADDY,
+    filter_type: Annotated[FilterType, Query()] = FilterType.TIME,
     size: Annotated[int, Query()] = 100,
     provider: DependenciesProvider = Depends(DomainRouterSource.get),
 ) -> Response:
     manager = provider.parsing_manager(
         collect_size=size,
-        pagination_size=100,
+        pagination_size=250,
+        filter_type=filter_type,
         source_type=source,
     )
     await manager.start()

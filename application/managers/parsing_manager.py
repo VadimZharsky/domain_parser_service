@@ -45,7 +45,7 @@ class ParsingManager:
     async def _read_queue(self) -> list[AddDomainDto]:
         data: list[AddDomainDto] = []
         try:
-            data = await asyncio.wait_for(self._queue.get(), timeout=20)
+            data = await asyncio.wait_for(self._queue.get(), timeout=40)
         except asyncio.TimeoutError:
             self._is_active = False
         return data

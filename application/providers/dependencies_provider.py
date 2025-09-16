@@ -7,7 +7,7 @@ from application.managers import ParsingManager
 from application.services import DomainService
 from application.settings import Settings
 from domain.contracts.repositories import IDomainRepository, IDomainSourceRepository
-from domain.enums import DomainSourceType
+from domain.enums import DomainSourceType, FilterType
 from infrastructure.database import DbContext
 from infrastructure.repositories import DomainRepository, DomainSourceRepository
 
@@ -48,10 +48,10 @@ class DependenciesProvider:
 
     @property
     def async_queue(self) -> AsyncQueue:
-        return AsyncQueue(maxsize=1000)
+        return AsyncQueue(maxsize=10000)
 
     def parsing_manager(
-        self, collect_size: int, pagination_size: int, source_type: DomainSourceType
+        self, collect_size: int, pagination_size: int, filter_type: FilterType, source_type: DomainSourceType
     ) -> ParsingManager:
         queue = self.async_queue
         return ParsingManager(
@@ -60,6 +60,7 @@ class DependenciesProvider:
                 collect_size=collect_size,
                 pagination_size=pagination_size,
                 task_pool_max=self.config.scraper.TASK_POOL_MAX,
+                filter_type=filter_type,
                 queue=queue,
                 source_type=source_type,
             ),
