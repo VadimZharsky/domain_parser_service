@@ -3,5 +3,4 @@ __all__ = [
     "FilterType",
 ]
 
-from .domain_enums import DomainSourceType
-from .domain_enums import FilterType
+from .domain_enums import DomainSourceType, FilterType

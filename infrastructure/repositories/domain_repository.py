@@ -10,6 +10,7 @@ from infrastructure.tools.mappers import DomainMapper
 class DomainRepository(IDomainRepository):
     def __init__(self, context: DbContext):
         self._context = context
+        self._names: list[str] = []
 
     async def create(self, dto: AddDomainDto, source_id: int) -> GetDomainDto | None:
         try:
@@ -23,13 +24,14 @@ class DomainRepository(IDomainRepository):
             return None
 
     async def bulk_create(self, dtos: list[AddDomainDto], source_id: int) -> list[GetDomainDto]:
-        existed_domains = await self.get_all()
-        existed_names = [d.name for d in existed_domains]
+        if len(self._names) == 0:
+            self._names = [d.name for d in await self.get_all()]
         dto_to_add: list[AddDomainDto] = []
         for dto in dtos:
-            if dto.name in existed_names:
+            if dto.name in self._names:
                 continue
             dto_to_add.append(dto)
+            self._names.append(dto.name)
         if len(dto_to_add) == 0:
             return []
         try:
@@ -37,6 +39,8 @@ class DomainRepository(IDomainRepository):
             async with self._context.session() as session:
                 session.add_all(domains)
                 await session.commit()
+                print(f"total in db: {len(self._names)}")
+                print(f"tried to insert to db: {len(dtos)}")
                 print(f"inserted in db: {len(domains)}")
                 return DomainMapper.to_dto_list(domains)
         except (OSError, sqlalchemy.exc.InterfaceError, sqlalchemy.exc.IntegrityError):

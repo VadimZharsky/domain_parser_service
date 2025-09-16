@@ -21,8 +21,9 @@ class DomainService:
 
         return await self._domain_repository.bulk_create(dtos, source.id)
 
-    async def get_all(self) -> list[GetDomainDto]:
-        return await self._domain_repository.get_all()
+    async def get_all_names(self) -> list[str]:
+        domains = await self._domain_repository.get_all()
+        return [d.name for d in domains]
 
     async def get_all_sources(self) -> list[DomainSourceDto]:
         return await self._source_repository.get_all()

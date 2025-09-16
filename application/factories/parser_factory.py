@@ -29,7 +29,11 @@ class ParserFactory:
 
     @staticmethod
     def _as_godaddy_parser(
-        collect_size: int, pagination_size: int, task_pool_max: int, filter_type: FilterType, queue: AsyncQueue,
+        collect_size: int,
+        pagination_size: int,
+        task_pool_max: int,
+        filter_type: FilterType,
+        queue: AsyncQueue,
     ) -> IParser:
         return GoDaddyPlaywrightParser(
             collect_size=collect_size,

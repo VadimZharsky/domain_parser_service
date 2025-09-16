@@ -2,7 +2,7 @@ import asyncio
 import json
 import random
 from asyncio import Queue as AsyncQueue
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from playwright.async_api import (
@@ -30,12 +30,12 @@ class GoDaddyPlaywrightParser(IParser):
     )
 
     def __init__(
-            self,
-            collect_size: int,
-            pagination_size: int,
-            task_pool_max: int,
-            filter_type: FilterType,
-            queue: AsyncQueue
+        self,
+        collect_size: int,
+        pagination_size: int,
+        task_pool_max: int,
+        filter_type: FilterType,
+        queue: AsyncQueue,
     ) -> None:
         self._collect_size = collect_size
         self._pagination_size = pagination_size
@@ -78,7 +78,7 @@ class GoDaddyPlaywrightParser(IParser):
         while self._collected < self._collect_size:
             try:
                 init_time = shift_time
-                shift_time = GoDaddyPlaywrightParser._time_shift(init_time, hours=6)
+                shift_time = GoDaddyPlaywrightParser._time_shift(init_time, hours=3)
                 iterator = GoDaddyIterator(size=self._pagination_size)
                 iterator.time_after = GoDaddyPlaywrightParser._time_repr(init_time)
                 iterator.set_filter(
@@ -107,17 +107,17 @@ class GoDaddyPlaywrightParser(IParser):
                         asyncio.create_task(
                             coro=self._extract_with_provided_url(
                                 context=context,
-                                url = step,
+                                url=step,
                                 semaphore=semaphore,
                             )
                         )
                     )
                 await asyncio.gather(*tasks)
-            except Exception:  # noqa
+            except Exception:
                 return
 
     async def _extract_with_provided_url(
-            self, context: BrowserContext, url: str, semaphore: asyncio.Semaphore
+        self, context: BrowserContext, url: str, semaphore: asyncio.Semaphore
     ) -> None:
         async with semaphore:
             content = await GoDaddyPlaywrightParser._extract_page_content(context=context, url=url)
@@ -146,6 +146,7 @@ class GoDaddyPlaywrightParser(IParser):
             print(f"load url: {url}")
             await page.goto(url)
             await page.wait_for_selector(selector="body pre")
+            await GoDaddyPlaywrightParser._interact_human_like(page)
             result = json.loads(await page.inner_text(selector="body pre"))
         except Exception as e:
             print(e)
@@ -223,12 +224,12 @@ class GoDaddyPlaywrightParser(IParser):
         await page.mouse.move(random.randint(100, 500), random.randint(100, 300), steps=random.randint(5, 20))
         scroll_amount = random.randint(200, 800)
         await page.evaluate(f"window.scrollBy(0, {scroll_amount})")
-        await asyncio.sleep(random.uniform(0.5, 2.0))
+        await asyncio.sleep(random.uniform(0.2, 1.0))
 
     @staticmethod
     def _time_repr(date: datetime) -> str:
         return date.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
     @staticmethod
-    def _time_shift(date:datetime, hours: int) -> datetime:
+    def _time_shift(date: datetime, hours: int) -> datetime:
         return date + timedelta(hours=hours)

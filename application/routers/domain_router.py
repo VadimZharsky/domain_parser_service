@@ -5,7 +5,7 @@ from fastapi.params import Query
 
 from application.builders import JsonResponseBuilder
 from application.providers import DependenciesProvider
-from domain.entities import DomainSourceDto, GetDomainDto
+from domain.entities import DomainSourceDto
 from domain.enums import DomainSourceType, FilterType
 
 domain_router = APIRouter(prefix="/api/domains", tags=["Domains"])
@@ -26,12 +26,22 @@ class DomainRouterSource:
 
 
 @domain_router.get(
-    path="/all",
+    path="/all_names",
     status_code=status.HTTP_200_OK,
-    response_model=list[GetDomainDto],
+    response_model=list[str],
 )
-async def get_all(provider: DependenciesProvider = Depends(DomainRouterSource.get)) -> list[GetDomainDto]:
-    return await provider.domains_service.get_all()
+async def get_all_names(provider: DependenciesProvider = Depends(DomainRouterSource.get)) -> Response:
+    res = await provider.domains_service.get_all_names()
+    return (
+        JsonResponseBuilder()
+        .with_dict(
+            json_dict={
+                "count": len(res),
+            }
+        )
+        .with_status(status.HTTP_200_OK)
+        .respond()
+    )
 
 
 @domain_router.get(
@@ -57,7 +67,7 @@ async def fetch_from(
 ) -> Response:
     manager = provider.parsing_manager(
         collect_size=size,
-        pagination_size=250,
+        pagination_size=100,
         filter_type=filter_type,
         source_type=source,
     )
